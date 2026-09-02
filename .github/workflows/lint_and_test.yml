@@ -1,0 +1,32 @@
+name: RevOps Engineering CI Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Set up Python Environment
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Run Python Syntax Compilation Checks
+      run: |
+        python -m py_compile 30_Resources/Code/sfdc_pql_ingestor.py
+        python -m py_compile 30_Resources/Code/scoring/meddpicc_health_engine.py
+        python -m py_compile 30_Resources/Code/orchestrators/l2a_matching_engine.py
+        python -m py_compile 30_Resources/Code/revops_tech_debt_tracker.py
+        python -m py_compile 30_Resources/Code/scoring/churn_prediction_pipeline.py
+
+    - name: Execute Full Integration Test Suite
+      run: |
+        python -m unittest discover -s 30_Resources/Code/tests -p "test_*.py"
